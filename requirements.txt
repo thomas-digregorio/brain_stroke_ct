@@ -1,0 +1,25 @@
+# Core DL (Pinned for RTX 5080 / CUDA 12.9 support)
+# Note: You may need to install torch fetching the cu128 wheel explicitly if pip defaults to cpu
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+torch>=2.5.1
+torchvision>=0.20.1
+timm>=1.0.11
+kaggle
+
+# Data Science
+pandas
+numpy
+scikit-learn
+opencv-python-headless
+matplotlib
+seaborn
+pydicom
+
+# MLOps & App
+wandb>=0.18.0
+streamlit>=1.40.0
+hydra-core
+
+# Dev
+jupyterlab
+ipykernel
