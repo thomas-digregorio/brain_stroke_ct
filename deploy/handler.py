@@ -17,7 +17,9 @@ class StrokeHandler:
         print(f"[INFO] Handler initializing on device: {self.device}")
         
         # Load Model
-        self.model = StrokeClassifier().to(self.device)
+        # CRITICAL FIX: pretrained=False prevents connection attempt to HuggingFace
+        # We load our own weights in the next step anyway.
+        self.model = StrokeClassifier(pretrained=False).to(self.device)
         if os.path.exists(model_path):
             self.model.load_state_dict(torch.load(model_path, map_location=self.device))
             print(f"[INFO] Model loaded from {model_path}")

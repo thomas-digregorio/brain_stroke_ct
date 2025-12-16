@@ -18,7 +18,7 @@ pydicom
 # MLOps & App
 wandb>=0.18.0
 streamlit>=1.40.0
-hydra-core
+
 
 # Dev
 jupyterlab

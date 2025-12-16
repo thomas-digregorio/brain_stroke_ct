@@ -5,18 +5,26 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.5%2B-ee4c2c.svg)](https://pytorch.org/)
 [![CUDA 12.8](https://img.shields.io/badge/CUDA-12.8-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![W&B](https://img.shields.io/badge/Weights_&_Biases-Tracked-yellow.svg)](https://wandb.ai/)
-[![Platform](https://img.shields.io/badge/Platform-WSL2%20|%20Vertex%20AI-blueviolet)](https://learn.microsoft.com/en-us/windows/wsl/)
+[![Platform](https://img.shields.io/badge/Platform-WSL2%20|%20Cloud%20Run-blueviolet)](https://cloud.google.com/run)
 
 ## 🏥 Project Overview
-This project implements a deep learning pipeline for the binary classification of brain CT scans (Normal vs. Stroke). Designed with a **clinical-first mindset**, it prioritizes high sensitivity (recall) to minimize missed diagnoses. The system features a robust training pipeline, automated experiment tracking, and a safety layer for Out-of-Distribution (OOD) detection.
+This project implements an end-to-end MLOps pipeline for the binary classification of brain CT scans (Normal vs. Stroke), designed to demonstrate **clinical-grade reliability** and **production-readiness**.
+
+**Key Technical Features:**
+*   **Deep Learning Core**: Built on `PyTorch 2.5+` and `timm`, utilizing **EfficientNet** backbones for state-of-the-art feature extraction.
+*   **Hardware Acceleration**: Optimized for NVIDIA RTX 50-series GPUs using **Automatic Mixed Precision (AMP)** and **CUDA 12.8** to maximize training throughput and memory efficiency.
+*   **Production Deployment**: Fully containerized using **Docker** and deployed as a serverless monolithic microservice on **Google Cloud Platform (Cloud Run)**.
+*   **MLOps & Tracking**: Integrated with **Weights & Biases (W&B)** for real-time experiment tracking, model checkpointing, and hyperparameter optimization.
+*   **Clinical Safety**: Features a custom "Safety Layer" implementing **Monte Carlo Dropout** for uncertainty estimation and **Out-of-Distribution (OOD)** saturation checks to reject invalid inputs.
 
 ![Local Demo](assets/demo_screenshot.png)
+> **[🔴 Try the Live Demo here](https://neuroscan-app-771960206668.us-central1.run.app)**
 
 **Key Objectives:**
 *   **Clinical Literacy**: Primary metric is **F2 Score** (recall-weighted) rather than accuracy.
 *   **High Performance**: Optimized for RTX 50-series GPUs using Mixed Precision (AMP) and CUDA 12.8.
 *   **Safety**: Includes uncertainty estimation (Monte Carlo Dropout) and saturation checks to reject non-medical images.
-*   **Scalability**: Designed for "Frontend-Backend" deployment on Google Cloud (Vertex AI + Cloud Run).
+*   **Scalability**: Deployed as a scalable **Monolithic Container** on Google Cloud Run.
 
 ---
 
@@ -25,7 +33,7 @@ We leverage a modern MLOps stack to ensure reproducibility, scalability, and tra
 
 ### 🔬 Deep Learning & Data Science
 *   **Core Framework**: `PyTorch 2.5+`, `Torchvision`
-*   **Architectures**: `timm` (EfficientNet-B4 Backbone), Custom Classification Heads
+*   **Architectures**: `timm` (EfficientNet-B4 Backbone via **Transfer Learning** on ImageNet), Custom Classification Heads
 *   **Optimization**: Automatic Mixed Precision (AMP) for fp16 training, Label Smoothing, AdamW
 *   **Data Handling**: Stratified Shuffle Splits, Class Imbalance Management
 *   **Safety Layer**: 
@@ -35,7 +43,7 @@ We leverage a modern MLOps stack to ensure reproducibility, scalability, and tra
 ### 🛠️ MLOps & Engineering
 *   **Experiment Tracking**: `Weights & Biases (W&B)` - Real-time loss monitoring, artifact storage, and Hyperparameter Sweeps (Bayesian/Random).
 *   **Deployment**: `Streamlit` (Frontend), `FastAPI` (Inference Handler - planned), `Docker` (Containerization).
-*   **Infrastructure**: Local Development on **WSL 2** with direct GPU Access; Production target on **GCP Vertex AI**.
+*   **Infrastructure**: Local Development on **WSL 2** with direct GPU Access; Production target on **Google Cloud Run**.
 
 ---
 
@@ -63,7 +71,7 @@ Run the dedicated training script. This defaults to `EfficientNet-B4` and logs t
 # Standard Training
 python train_cls.py
 
-# Arguments are handled via W&B Config or Hydra (in progress)
+# Arguments are handled via standard defaults or W&B Config (during sweeps)
 ```
 
 **Hardware Acceleration**:
@@ -97,13 +105,25 @@ Medical AI must be trustworthy. This repo implements a "Safety Layer" (`utils/sa
 
 ---
 
-## 🚀 Deployment Architecture
-The production target is a microservices architecture:
-*   **Inference Service**: Managed by **GCP Vertex AI** (Autoscaling GPU endpoints).
-*   **Frontend**: A **Streamlit** dashboard (containerized via Docker) allowing clinicians to drag-and-drop scans.
+---
 
-*(Deployment modules located in `deploy/`)*
+## 🚀 Deployment (Docker & Cloud Run)
+The application is containerized and hosted on Google Cloud Run.
 
+**Live Demo**: [https://neuroscan-app-771960206668.us-central1.run.app](https://neuroscan-app-771960206668.us-central1.run.app)
+
+*  **Frontend**: A **Streamlit** dashboard (containerized via Docker) allowing clinicians to drag-and-drop scans.
+
+### 🐳 Docker
+Build and run the container locally:
+
+```bash
+# Build
+docker build -f deploy/Dockerfile -t stroke-app:v1 .
+
+# Run (Mapped to port 8501)
+docker run -p 8501:8501 stroke-app:v1
+```
 ---
 
 ## 📂 Visualizations

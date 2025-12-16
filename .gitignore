@@ -14,6 +14,7 @@ artifacts/
 .env
 .kaggle
 kaggle.json
+*.json
 secrets.yaml
 gcp_key.json
 *.key
@@ -32,3 +33,7 @@ env/
 # IDE
 .vscode/
 .idea/
+
+# Documentation (Local only)
+deploy/GCP_GUIDE.md
+implementation_plan.md

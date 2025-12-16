@@ -59,7 +59,7 @@ st.write("Upload a non-contrast CT slice to detect Ischemic or Hemorrhagic Strok
 
 # Sidebar
 st.sidebar.header("Settings")
-mode = st.sidebar.radio("Inference Mode", ["Local (GPU)", "Cloud (Vertex AI)"])
+# mode = st.sidebar.radio("Inference Mode", ["Local (GPU)", "Cloud (Vertex AI)"])
 
 # Sensitivity Slider
 st.sidebar.markdown("---")
@@ -72,12 +72,12 @@ st.sidebar.write("Click an image to test:")
 
 # Hardcoded Examples from dataset
 example_images = {
-    "Normal 1": "Brain_Stroke_CT_Dataset/Normal/PNG/10000.png",
-    "Normal 2": "Brain_Stroke_CT_Dataset/Normal/PNG/10005.png",
-    "Normal 3": "Brain_Stroke_CT_Dataset/Normal/PNG/10011.png",
-    "Stroke 1": "Brain_Stroke_CT_Dataset/Bleeding/PNG/10002.png",
-    "Stroke 2": "Brain_Stroke_CT_Dataset/Bleeding/PNG/10036.png",
-    "Stroke 3": "Brain_Stroke_CT_Dataset/Bleeding/PNG/10049.png", 
+    "Normal 1": "assets/samples/10000.png",
+    "Normal 2": "assets/samples/10005.png",
+    "Normal 3": "assets/samples/10011.png",
+    "Stroke 1": "assets/samples/10002.png",
+    "Stroke 2": "assets/samples/10036.png",
+    "Stroke 3": "assets/samples/10049.png", 
 }
 
 selected_example = None
@@ -121,18 +121,15 @@ if image_to_process is not None:
     
     st.write("Analyzing...")
     
-    if mode == "Local (GPU)":
-        # Convert to bytes for handler
-        img_byte_arr = io.BytesIO()
-        image_to_process.save(img_byte_arr, format='PNG')
-        img_bytes = img_byte_arr.getvalue()
-        
-        # Inference
-        result = local_handler.handle(img_bytes, threshold=confidence_threshold)
-        
-    else:
-        st.info("Cloud Endpoint not configured yet. Switching to Local.")
-        result = {"error": "Cloud URL missing"}
+    st.write("Analyzing...")
+    
+    # Convert to bytes for handler
+    img_byte_arr = io.BytesIO()
+    image_to_process.save(img_byte_arr, format='PNG')
+    img_bytes = img_byte_arr.getvalue()
+    
+    # Inference
+    result = local_handler.handle(img_bytes, threshold=confidence_threshold)
 
     # Display Result
     if "error" in result:
@@ -141,13 +138,19 @@ if image_to_process is not None:
         pred = result['prediction']
         conf = result['confidence']
         
+        # Display logic: If Normal, show "Confidence it is Normal" (1 - p)
+        # If Stroke, show "Confidence it is Stroke" (p)
+        display_conf = conf
+        if pred == "Normal":
+            display_conf = 1.0 - conf
+
         # Color coding
         color_class = "danger" if pred == "Stroke" else "safe"
         
         st.markdown(f"""
         <div class="prediction-box {color_class}">
             Result: {pred.upper()} <br>
-            Confidence: {conf:.2%}
+            Confidence: {display_conf:.2%}
         </div>
         """, unsafe_allow_html=True)
         

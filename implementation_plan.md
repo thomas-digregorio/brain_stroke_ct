@@ -2,7 +2,7 @@
 
 ## Goal Description
 Train a clinically literate binary classifier (Stroke vs No Stroke) on 2D CT slices. The system will use an EfficientNet backbone, prioritize sensitivity (recall), and use robust experiment tracking via W&B.
-**Deployment**: A "Frontend-Backend" architecture where the model is hosted on Google Vertex AI for scalable inference, and a Streamlit UI (hosted on Cloud Run) consumes this endpoint.
+**Deployment**: A "Monolithic Container" architecture where the Streamlit UI and Model Inference run together in a single container on **Google Cloud Run** (CPU-based).
 
 ## User Review Required
 > [!IMPORTANT]
@@ -63,7 +63,7 @@ We will create a modular Python project structure.
 
 #### [NEW] [train_cls.py](file:///c:/Users/thoma/Documents/Stroke_CT_DL/train_cls.py)
 - Dedicated training loop for Binary Classification.
-- **Loss**: `BCEWithLogitsLoss` + **Label Smoothing** (0.1).
+- **Arguments**: Managed via `argparse` defaults or W&B Config (during sweeps).
 - **Logging**: Step-wise W&B logging (loss per batch) + Epoch-wise validation metrics.
 - **Validation**: 5-Fold Cross-Validation support.
 
@@ -82,28 +82,24 @@ We will create a modular Python project structure.
     - **Saturation Check**: Reject images with high mean color saturation (likely non-medical images).
     - *Note: Histogram/Resize checks omitted per design review.*
 
-### Deployment Phase (GCP Vertex AI + Streamlit)
+### Deployment Phase (Google Cloud Run)
 
 > [!TIP]
-> **W&B + Vertex AI Integration**: W&B will be used for *Experiment Tracking*. Vertex AI is for *Serving*.
-> 1. Train and identify best run in W&B.
-> 2. Download `best_model.pth`.
-> 3. Register to Vertex AI Model Registry.
+> **Monolithic Strategy**: We deploy the Streamlit app and PyTorch model in the same container. This is simpler and cost-effective for this scale.
 
 #### [NEW] [deploy/handler.py](file:///c:/Users/thoma/Documents/Stroke_CT_DL/deploy/handler.py)
-- Prediction handler for Vertex AI.
+- **Local Inference Handler**: Loads `best_model.pth` directly within the container.
 - **Includes OOD check** before model inference.
+- **Weights**: Uses local weights (transfer learning disabled at inference time).
 
 #### [NEW] [deploy/full_local_demo.py](file:///c:/Users/thoma/Documents/Stroke_CT_DL/deploy/full_local_demo.py)
-- Alternative to Cloud: Runs Streamlit + Model locally on your RTX 5080.
-- **Sample Gallery**: Sidebar with 10 clickable thumbnails (Stroke/Normal/OOD) to auto-load for easy testing.
-- Useful for free development before deploying to paid GCP.
+- **Local Runner**: Wrapper to launch Streamlit locally for testing.
+- **Sample Gallery**: Sidebar with clickable thumbnails.
 
 #### [NEW] [deploy/app.py](file:///c:/Users/thoma/Documents/Stroke_CT_DL/deploy/app.py)
 - **Streamlit UI**:
     - Drag-and-drop file uploader.
-    - Visualization of original image.
-    - Request logic: Sends image to Vertex AI Endpoint.
+    - **Inference**: Calls `handler.py` directly (No external network request).
     - Display: "Stroke Detected" vs "Normal" + Confidence Score.
 
 #### [NEW] [deploy/Dockerfile](file:///c:/Users/thoma/Documents/Stroke_CT_DL/deploy/Dockerfile)

@@ -1,0 +1,17 @@
+# Exclude Data
+Brain_Stroke_CT_Dataset/
+data/
+outputs/
+wandb/
+artifacts/
+.git/
+.gitignore
+.venv/
+__pycache__/
+
+# Exclude Secrets
+.env
+kaggle.json
+*.json
+*.key
+*.pem
