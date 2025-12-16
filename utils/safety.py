@@ -43,7 +43,7 @@ def mc_dropout_predict(model, input_tensor, n_samples=10):
     with torch.no_grad():
         for _ in range(n_samples):
             logits = model(input_tensor)
-            probs = torch.sigmoid(logits)
+            probs = torch.softmax(logits, dim=1)
             probs_list.append(probs.cpu().numpy())
             
     probs_stack = np.stack(probs_list)
