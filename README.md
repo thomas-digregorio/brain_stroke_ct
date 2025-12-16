@@ -10,6 +10,8 @@
 ## 🏥 Project Overview
 This project implements a deep learning pipeline for the binary classification of brain CT scans (Normal vs. Stroke). Designed with a **clinical-first mindset**, it prioritizes high sensitivity (recall) to minimize missed diagnoses. The system features a robust training pipeline, automated experiment tracking, and a safety layer for Out-of-Distribution (OOD) detection.
 
+![Local Demo](assets/demo_screenshot.png)
+
 **Key Objectives:**
 *   **Clinical Literacy**: Primary metric is **F2 Score** (recall-weighted) rather than accuracy.
 *   **High Performance**: Optimized for RTX 50-series GPUs using Mixed Precision (AMP) and CUDA 12.8.
@@ -19,20 +21,28 @@ This project implements a deep learning pipeline for the binary classification o
 ---
 
 ## ⚡ Tech Stack & Engineering
-We leverage a modern MLOps stack to ensure reproducibility and performance:
+We leverage a modern MLOps stack to ensure reproducibility, scalability, and transparency:
 
-*   **Core DL**: `PyTorch 2.5+`, `Torchvision`, `timm` (EfficientNet Backbones).
-*   **Experiment Tracking**: `Weights & Biases (W&B)` for real-time loss curves, artifacts, and hyperparameter sweeps.
-*   **Environment**: Developed on **WSL 2 (Ubuntu)** for native Linux kernel performance with direct GPU access.
-*   **Visualization**: `JupyterLab` for extensive EDA (pixel histograms, class distribution analysis).
-*   **Safety**: Custom OOD detectors in `utils/safety.py`.
+### 🔬 Deep Learning & Data Science
+*   **Core Framework**: `PyTorch 2.5+`, `Torchvision`
+*   **Architectures**: `timm` (EfficientNet-B4 Backbone), Custom Classification Heads
+*   **Optimization**: Automatic Mixed Precision (AMP) for fp16 training, Label Smoothing, AdamW
+*   **Data Handling**: Stratified Shuffle Splits, Class Imbalance Management
+*   **Safety Layer**: 
+    *   **OOD Detection**: Saturation analysis to reject non-CT images.
+    *   **Uncertainty**: Monte Carlo Dropout for epistemic uncertainty quantification.
+
+### 🛠️ MLOps & Engineering
+*   **Experiment Tracking**: `Weights & Biases (W&B)` - Real-time loss monitoring, artifact storage, and Hyperparameter Sweeps (Bayesian/Random).
+*   **Deployment**: `Streamlit` (Frontend), `FastAPI` (Inference Handler - planned), `Docker` (Containerization).
+*   **Infrastructure**: Local Development on **WSL 2** with direct GPU Access; Production target on **GCP Vertex AI**.
 
 ---
 
 ## 🛠️ Usage
 
 ### 1. Environment Setup
-Optimized for **NVIDIA RTX 5080** / **CUDA 12.9**.
+Optimized for **NVIDIA RTX 5080** / **CUDA 12.8**.
 
 ```bash
 # 1. Create Environment
