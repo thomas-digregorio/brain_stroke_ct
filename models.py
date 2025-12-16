@@ -19,7 +19,7 @@ class StrokeClassifier(nn.Module):
         # Custom Classifier Head
         self.classifier = nn.Sequential(
             nn.Dropout(p=dropout_rate), # Tunable Parameter
-            nn.Linear(in_features, 1) # Output 1 raw logit (Binary)
+            nn.Linear(in_features, 2) # Output 2 raw logits (Normal, Stroke)
         )
 
     def forward(self, x):
