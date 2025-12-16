@@ -1,6 +1,7 @@
 # Data
 *.zip
 *.png
+!assets/*.png
 *.jpg
 *.dcm
 Brain_Stroke_CT_Dataset/
